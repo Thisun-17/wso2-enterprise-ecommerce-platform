@@ -14,103 +14,17 @@ import {
   Loader2,
   RefreshCw
 } from 'lucide-react';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  stock: number;
-  description: string;
-}
-
-const mockProducts: Product[] = [
-  {
-    id: 1,
-    name: 'Wireless Bluetooth Headphones',
-    price: 99.99,
-    category: 'Electronics',
-    stock: 50,
-    description: 'High-quality wireless headphones with noise cancellation'
-  },
-  {
-    id: 2,
-    name: 'Running Shoes',
-    price: 79.99,
-    category: 'Sports',
-    stock: 30,
-    description: 'Comfortable running shoes for all terrains'
-  },
-  {
-    id: 3,
-    name: 'Smart Watch',
-    price: 299.99,
-    category: 'Electronics',
-    stock: 25,
-    description: 'Feature-rich smartwatch with health monitoring'
-  },
-  {
-    id: 4,
-    name: 'Coffee Maker',
-    price: 149.99,
-    category: 'Home',
-    stock: 15,
-    description: 'Programmable coffee maker with thermal carafe'
-  },
-  {
-    id: 5,
-    name: 'Denim Jacket',
-    price: 89.99,
-    category: 'Fashion',
-    stock: 40,
-    description: 'Classic denim jacket with modern fit'
-  },
-  {
-    id: 6,
-    name: 'Yoga Mat',
-    price: 34.99,
-    category: 'Sports',
-    stock: 60,
-    description: 'Non-slip yoga mat for all practice levels'
-  }
-];
+import { useProducts } from '@/hooks/useProducts';
+import { Product } from '@/types';
 
 export default function ProductCatalog() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const { products, loading, error, refreshProducts, clearError } = useProducts();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
-  const categories = ['All', 'Electronics', 'Sports', 'Home', 'Fashion'];
-
-  const fetchProducts = async () => {
-    setLoading(true);
-    setError('');
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In real implementation, this would be:
-      // const response = await fetch('http://localhost:3001/products');
-      // const data = await response.json();
-      // setProducts(data.data);
-      
-      setProducts(mockProducts);
-      setFilteredProducts(mockProducts);
-    } catch (err) {
-      setError('Failed to fetch products');
-      console.error('Error fetching products:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  // Get unique categories from actual products, plus 'All'
+  const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
   useEffect(() => {
     let filtered = products;
@@ -162,10 +76,15 @@ export default function ProductCatalog() {
         <div className="text-center">
           <AlertCircle className="h-8 w-8 mx-auto mb-4 text-destructive" />
           <p className="text-destructive mb-4">{error}</p>
-          <Button onClick={fetchProducts} variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Retry
-          </Button>
+          <div className="space-x-2">
+            <Button onClick={refreshProducts} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+            <Button onClick={clearError} variant="ghost">
+              Dismiss
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -178,14 +97,15 @@ export default function ProductCatalog() {
         <div>
           <h2 className="text-3xl font-bold text-foreground">Product Catalog</h2>
           <p className="text-muted-foreground mt-1">
-            Browse and manage your product inventory
+            Browse and manage your product inventory ({products.length} products)
           </p>
         </div>
         <Button 
-          onClick={fetchProducts}
+          onClick={refreshProducts}
+          disabled={loading}
           className="bg-gradient-wso2 hover:opacity-90 text-white shadow-wso2"
         >
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>

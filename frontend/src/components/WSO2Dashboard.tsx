@@ -15,8 +15,12 @@ import {
   Globe,
   RefreshCw,
   Code,
-  Lock
+  Lock,
+  Loader2
 } from 'lucide-react';
+import { useHealth } from '@/hooks/useHealth';
+import { useProducts } from '@/hooks/useProducts';
+import { useUsers } from '@/hooks/useUsers';
 
 interface WSO2Service {
   name: string;
@@ -27,33 +31,37 @@ interface WSO2Service {
 }
 
 export default function WSO2Dashboard() {
+  const { health, loading: healthLoading, checkHealth } = useHealth(30000); // Check every 30 seconds
+  const { products, total: productCount } = useProducts();
+  const { users, total: userCount } = useUsers();
+  
   const [services, setServices] = useState<WSO2Service[]>([
     {
       name: 'API Manager',
       url: 'https://localhost:9443/carbon',
       port: 9443,
-      status: 'online',
+      status: 'unknown',
       description: 'Management console for API lifecycle management'
     },
     {
       name: 'Developer Portal',
       url: 'https://localhost:9443/devportal',
       port: 9443,
-      status: 'online',
+      status: 'unknown',
       description: 'Developer portal for API discovery and testing'
     },
     {
       name: 'API Gateway',
       url: 'https://localhost:8243',
       port: 8243,
-      status: 'online',
+      status: 'unknown',
       description: 'Runtime gateway for API traffic routing'
     },
     {
       name: 'Key Manager',
       url: 'https://localhost:9443/keymanager',
       port: 9443,
-      status: 'online',
+      status: 'unknown',
       description: 'OAuth2 key and token management'
     }
   ]);
@@ -90,15 +98,7 @@ export default function WSO2Dashboard() {
 
   const refreshServices = async () => {
     setRefreshing(true);
-    
-    // Simulate service health check
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setServices(prev => prev.map(service => ({
-      ...service,
-      status: Math.random() > 0.1 ? 'online' : 'offline'
-    })));
-    
+    await checkHealth();
     setRefreshing(false);
   };
 
@@ -146,6 +146,130 @@ export default function WSO2Dashboard() {
           <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh Status
         </Button>
+      </div>
+
+      {/* Backend Services Health & Statistics */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Product Service Status */}
+        <Card className="shadow-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Database className="h-5 w-5" />
+                <span>Product Service</span>
+              </div>
+              <Badge className={health.productService.healthy ? 'bg-success text-success-foreground' : 'bg-destructive text-destructive-foreground'}>
+                {health.productService.healthy ? 'HEALTHY' : 'UNHEALTHY'}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Endpoint:</span>
+              <span className="text-sm font-mono">localhost:3001</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Products:</span>
+              <span className="text-lg font-semibold text-foreground">{productCount}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Last Checked:</span>
+              <span className="text-xs text-muted-foreground">
+                {new Date(health.productService.lastChecked).toLocaleTimeString()}
+              </span>
+            </div>
+            {health.productService.details && (
+              <div className="text-xs text-muted-foreground">
+                Status: {health.productService.details.status}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* User Service Status */}
+        <Card className="shadow-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Shield className="h-5 w-5" />
+                <span>User Service</span>
+              </div>
+              <Badge className={health.userService.healthy ? 'bg-success text-success-foreground' : 'bg-destructive text-destructive-foreground'}>
+                {health.userService.healthy ? 'HEALTHY' : 'UNHEALTHY'}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Endpoint:</span>
+              <span className="text-sm font-mono">localhost:3002</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Users:</span>
+              <span className="text-lg font-semibold text-foreground">{userCount}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Last Checked:</span>
+              <span className="text-xs text-muted-foreground">
+                {new Date(health.userService.lastChecked).toLocaleTimeString()}
+              </span>
+            </div>
+            {health.userService.details && (
+              <div className="text-xs text-muted-foreground">
+                Status: {health.userService.details.status}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Overall System Health */}
+        <Card className="shadow-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Activity className="h-5 w-5" />
+                <span>System Health</span>
+              </div>
+              <Badge className={health.allHealthy ? 'bg-success text-success-foreground' : 'bg-warning text-warning-foreground'}>
+                {health.allHealthy ? 'ALL HEALTHY' : 'ISSUES DETECTED'}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center space-x-2">
+              {health.productService.healthy ? (
+                <CheckCircle className="h-4 w-4 text-success" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-destructive" />
+              )}
+              <span className="text-sm">Product API</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              {health.userService.healthy ? (
+                <CheckCircle className="h-4 w-4 text-success" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-destructive" />
+              )}
+              <span className="text-sm">User API</span>
+            </div>
+            <div className="pt-2 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={refreshServices}
+                disabled={healthLoading || refreshing}
+                className="w-full"
+              >
+                {healthLoading || refreshing ? (
+                  <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3 w-3 mr-2" />
+                )}
+                Check Health
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* WSO2 Services Status */}
