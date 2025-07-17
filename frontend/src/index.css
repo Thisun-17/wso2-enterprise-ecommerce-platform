@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* WSO2 E-Commerce Design System - Professional Enterprise Theme */
+
+@layer base {
+  :root {
+    /* WSO2 Brand Colors */
+    --wso2-primary: 244 63% 69%;        /* #667eea */
+    --wso2-secondary: 263 52% 53%;      /* #764ba2 */
+    --wso2-accent: 217 91% 60%;         /* #3b82f6 */
+    
+    /* Professional Color Palette */
+    --background: 0 0% 100%;
+    --foreground: 222 84% 5%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+    
+    --primary: 244 63% 69%;              /* WSO2 Primary */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 84% 5%;
+    
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 244 63% 69%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+    
+    --radius: 0.75rem;
+    
+    /* Gradients */
+    --gradient-wso2: linear-gradient(135deg, hsl(var(--wso2-primary)), hsl(var(--wso2-secondary)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--wso2-primary) / 0.1), hsl(var(--wso2-secondary) / 0.1));
+    --gradient-card: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+    
+    /* Shadows */
+    --shadow-wso2: 0 10px 30px -10px hsl(var(--wso2-primary) / 0.3);
+    --shadow-elegant: 0 4px 20px -2px hsl(var(--foreground) / 0.1);
+    --shadow-card: 0 2px 10px -1px hsl(var(--foreground) / 0.1);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .dark {
+    --background: 222 84% 5%;
+    --foreground: 210 40% 98%;
+    
+    --card: 222 84% 5%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222 84% 5%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 244 63% 69%;
+    --primary-foreground: 222 84% 5%;
+    
+    --secondary: 217 33% 18%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 217 91% 60%;
+    --accent-foreground: 222 84% 5%;
+    
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 244 63% 69%;
+    
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+    
+    --gradient-hero: linear-gradient(135deg, hsl(var(--wso2-primary) / 0.2), hsl(var(--wso2-secondary) / 0.2));
+    --shadow-wso2: 0 10px 30px -10px hsl(var(--wso2-primary) / 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
